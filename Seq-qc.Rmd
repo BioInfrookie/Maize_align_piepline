@@ -17,6 +17,7 @@ output:
 params:
   input_dir: ""
   file_name: ""
+  species_names: ""
 ---
 
 ```{r setup, include=FALSE}
@@ -51,7 +52,6 @@ library(glue)
 library(ggpubr)
 library(edgeR)
 library(kableExtra)
-# library(data.table)
 library(ggplot2)
 library(clusterProfiler)
 library(AnnotationHub)
@@ -61,6 +61,7 @@ library(DT)
 ```
 
 ```{r loading data}
+species_names <- params$species_names
 if(species_names=="mouse") {
     ID_trans <- read.table("/data/yulab/qzh/Analysis/qzh/data_Ref/mm10/Ensemble_id_trans.txt",header = T,sep = "\\",quote = "")
   } else if(species_names=="pig") {
@@ -180,8 +181,8 @@ if (nrow(reads_table) <=2 ) {
   DEG_gene_table <- DEG_gene_table[,-c(4,6)]
 }
 
-ensembl = useMart(biomart = "plants_mart",host = "http://plants.ensembl.org")
-dataset <- listDatasets(mart = ensembl)
+# ensembl = useMart(biomart = "plants_mart",host = "http://plants.ensembl.org")
+# dataset <- listDatasets(mart = ensembl)
 
 ensembl = useMart(biomart = "plants_mart",host = "http://plants.ensembl.org",dataset="zmays_eg_gene")
 attributes <- listAttributes(ensembl)
@@ -190,7 +191,7 @@ ensemble_id <- getBM(attributes =c("ensembl_gene_id","entrezgene_id"),filters = 
 names(ensemble_id) <- c("gene","ENTREZID")
 ####### step 3 down database 
 hub <- AnnotationHub()
-maize <- hub[['AH100860']]
+maize <- hub[['AH111691']]
 # columns(maize)
 gene_name <- bitr(ensemble_id$ENTREZID,fromType = 'ENTREZID',
            toType = c('ENTREZID','SYMBOL','GENENAME'),

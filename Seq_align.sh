@@ -44,22 +44,20 @@ done
 # function design
 function clean_reads(){
     /data/yulab/qzh/Analysis/qzh/software/TrimGalore-0.6.6/trim_galore -q 30 \
-		--length 60 --phred33 -e 0.1 \
+		--length 60 --phred33 -e 0.1 -j 10 \
 		--stringency 3 --paired -o $3 $1 $2
 }
-
 function align_mt {
     /data/yulab/qzh/anaconda3/envs/hiseq/bin/bowtie2 \
-		--mm -p 6 -q --local --un-conc-gz $3/$(basename $1 "_1_val_1.fq.gz")_unmap \
+		--mm -p 10 -q --local --un-conc-gz $3/$(basename $1 "_1_val_1.fq.gz")_unmap \
 		--very-sensitive --no-unal --no-mixed --no-discordant  -I 10 -X 700  \
 		-x $4 -1 $1 -2 $2 1>$3/$(basename $1 "_1_val_1.fq.gz")_rRNA.sam \
 		2> $3/$(basename $1 "_1_val_1.fq.gz")_rRNA.bowtie2.log && samtools view -Sub <(samtools view -H $3/$(basename $1 "_1_val_1.fq.gz")_rRNA.sam; samtools view -F 2048 $3/$(basename $1 "_1_val_1.fq.gz")_rRNA.sam | \
 		grep 'YT:Z:CP') | samtools sort -@ 6 -o $3/$(basename $1 "_1_val_1.fq.gz")_rRNA.bam - && \
 		samtools index $3/$(basename $1 "_1_val_1.fq.gz")_rRNA.bam
 }
-
 function align_genome(){
-    STAR --runThreadN 4 --genomeDir $4 \
+    STAR --runThreadN 10 --genomeDir $4 \
         --runMode alignReads \
         --readFilesCommand zcat \
         --limitBAMsortRAM 10000000000 \
